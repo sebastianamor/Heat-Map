@@ -14,18 +14,24 @@ const tooltip = d3.select("#tooltip");
 
 // データ読み込み
 d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json")
-  .then(data => {
+  .then(data =>   {
     // データ処理
   
     }); 
+
+
+
+
 
  svg.append("g")
       .attr("id", "x-axis")
       .attr("transform", `translate(0,${height})`);
     // Y軸追加
   svg.append("g")
-      .attr("id", "y-axis");
- 
+      .attr("id", "y-axis")
+      .attr(d => d.month)
+      
+       
 
 d3.select("g")
   .selectAll(".cell")
@@ -38,31 +44,44 @@ const cell = svg.append("g")
       .attr("transform", `translate(${width - 150}, 20)`);
 
 
-
-
-    // ドーピングなし凡例
-    cell.append("rect")
+ // ドーピングなし凡例
+cell.append("rect")
       .attr("x", 0)
       .attr("y", 0)
-      .attr("width", 20)
-      .attr("height", 20)
-      .attr("fill", "red");
+      
 
 
 const colorScale = d3.scaleOrdinal()
-  .domain([0, 1, 2, 3]) // Ajusta según la cantidad de categorías
+  .domain([ 0 , 1, 2, 3]) // Ajusta según la cantidad de categorías
   .range(["red", "blue", "green", "orange"]); // 4 colores mínimos
 
-// Selecciona las celdas y asigna un color basado en los datos
+
+
+const dataset = [
+  { year: 2000, month: 0, value: 10 },
+  { year: 2001, month: 1, value: 15 },
+  { year: 2002, month: 2, value: 20 },
+  // Más datos...
+];
+
+
+
+
 svg.selectAll(".cell")
-  .data([0, 1, 2, 3]) // Simulación de datos, reemplázalo con los tuyos
+  .data(dataset)
   .enter()
   .append("rect")
   .attr("class", "cell")
-  .attr("width", 20)
-  .attr("height", 20)
-  .attr("x", (d, i) => i * 25) // Espaciado entre celdas
-  .attr("y", 50)
-  .attr("fill", d => colorScale(d));
+  .attr("width", 40) // Ajusta el tamaño según sea necesario
+  .attr("height", 40)
+  .attr("x", d => (d.year - d3.min(dataset, d => d.year)) * 45) // Espaciado entre columnas (años)
 
+  .attr("fill", d => colorScale(d.value))
+  .attr("data-month", d => d.month)
+  .attr("data-year", d => d.year)
+  .on("mouseover", function (event, d) {
+    tooltip.style("display", "block")
+      .html(`Year: ${d.year}, Month: ${d.month + 1}, Value: ${d.value}`);
+  })
+  .on("mouseout", () => tooltip.style("display", "none"));
   
