@@ -110,25 +110,49 @@ d3.json(url).then(data => {
     });
   
   // Leyenda
-  const legendWidth = 300;
-  const legendHeight = 30;
-  
-  const legend = svg.append("g")
-    .attr("id", "legend")
-    .attr("transform", `translate(${width - legendWidth - 20},${height + 40})`);
-  
-  const legendScale = d3.scaleLinear()
-    .domain([minTemp, maxTemp])
-    .range([0, legendWidth]);
-  
-  const legendAxis = d3.axisBottom(legendScale)
-    .ticks(5)
-    .tickFormat(d => d.toFixed(1) + "℃");
-  
-  const defs = svg.append("defs");
-  
-  const linearGradient = defs.append("linearGradient")
-    .attr("id", "linear-gradient");
+ // Escala para la leyenda (dividir el rango de temperatura en pasos)
+const legendColors = [
+"#313695", "#4575b4", "#74add1", "#abd9e9",
+"#e0f3f8", "#fee090", "#fdae61", "#f46d43", "#d73027"
+];
+
+const legendThreshold = d3.scaleThreshold()
+.domain(d3.range(minTemp, maxTemp, (maxTemp - minTemp) / (legendColors.length - 1)))
+.range(legendColors);
+
+// Crear grupo para la leyenda
+const legendWidth = 400;
+const legendHeight = 30;
+const legendRectWidth = legendWidth / legendColors.length;
+
+const legend = svg.append("g")
+.attr("id", "legend")
+.attr("transform", `translate(${width - legendWidth - 20}, ${height + 50})`);
+
+// Agregar rectángulos de color
+legend.selectAll("rect")
+.data(legendColors)
+.enter()
+.append("rect")
+.attr("x", (d, i) => i * legendRectWidth)
+.attr("y", 0)
+.attr("width", legendRectWidth)
+.attr("height", legendHeight)
+.attr("fill", d => d);
+
+// Eje de la leyenda con ticks
+const legendScale = d3.scaleLinear()
+.domain([minTemp, maxTemp])
+.range([0, legendWidth]);
+
+const legendAxis = d3.axisBottom(legendScale)
+.ticks(legendColors.length)
+.tickFormat(d => d.toFixed(1) + "℃");
+
+legend.append("g")
+.attr("transform", `translate(0, ${legendHeight})`)
+.call(legendAxis);
+
   
   // Añadir paradas de color al gradiente
   const stops = [
@@ -154,4 +178,3 @@ d3.json(url).then(data => {
 }).catch(error => {
   console.error("Error al cargar los datos:", error);
 });
-  
