@@ -1,30 +1,28 @@
 const margin = { top: 60, right: 20, bottom: 100, left: 100 };
-    const width = 1200 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+  const width = 1200 - margin.left - margin.right;
+  const height = 500 - margin.top - margin.bottom;
 
-    const svg = d3.select("svg")
-      .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+  const svg = d3.select("svg")
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const baseTemp = 8.66; // temperatura base de ejemplo
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
 
-    // Datos de ejemplo simulados
-    const data = [];
-    for (let year = 1754; year <= 2015; year++) {
-      for (let month = 0; month < 12; month++) {
-        data.push({
-          year: year,
-          month: month,
-          temp: baseTemp + Math.random() * 5 - 2.5 // temperatura aleatoria
-        });
-      }
-    }
+  const tooltip = d3.select("#tooltip");
+
+  d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json").then(dataset => {
+    const baseTemp = dataset.baseTemperature;
+    const data = dataset.monthlyVariance.map(d => ({
+      year: d.year,
+      month: d.month - 1, // meses 0-indexados
+      temp: baseTemp + d.variance,
+      variance: d.variance
+    }));
 
     const years = [...new Set(data.map(d => d.year))];
-    const months = [
-      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ];
 
     const xScale = d3.scaleBand()
       .domain(years)
@@ -38,9 +36,8 @@ const margin = { top: 60, right: 20, bottom: 100, left: 100 };
       .domain(d3.extent(data, d => d.temp))
       .range(["#4575b4", "#91bfdb", "#fee090", "#fc8d59", "#d73027"]);
 
-    // Ejes
     const xAxis = d3.axisBottom(xScale)
-      .tickValues(years.filter(year => year % 20 === 0))
+      .tickValues(years.filter(year => year % 10 === 0))
       .tickFormat(d3.format("d"));
 
     const yAxis = d3.axisLeft(yScale)
@@ -58,9 +55,6 @@ const margin = { top: 60, right: 20, bottom: 100, left: 100 };
       .attr("id", "y-axis")
       .call(yAxis);
 
-    // Tooltip
-    const tooltip = d3.select("#tooltip");
-
     // Celdas del mapa de calor
     svg.selectAll(".cell")
       .data(data)
@@ -77,7 +71,7 @@ const margin = { top: 60, right: 20, bottom: 100, left: 100 };
       .attr("fill", d => colorScale(d.temp))
       .on("mouseover", function (event, d) {
         tooltip.style("opacity", 1)
-          .html(`Año: ${d.year}<br>Mes: ${months[d.month]}<br>Temp: ${d.temp.toFixed(2)}°C`)
+          .html(`Año: ${d.year}<br>Mes: ${months[d.month]}<br>Temp: ${d.temp.toFixed(2)}°C<br>Varianza: ${d.variance.toFixed(2)}°C`)
           .attr("data-year", d.year)
           .style("left", (event.pageX + 10) + "px")
           .style("top", (event.pageY - 30) + "px");
@@ -87,7 +81,14 @@ const margin = { top: 60, right: 20, bottom: 100, left: 100 };
       });
 
     // Leyenda
-    const legendColors = colorScale.range();
+    const legendColors = [
+      "#4575b4",
+      "#91bfdb",
+      "#fee090",
+      "#fc8d59",
+      "#d73027"
+    ];
+
     const legendWidth = 300;
     const legendHeight = 20;
 
@@ -96,7 +97,7 @@ const margin = { top: 60, right: 20, bottom: 100, left: 100 };
       .attr("transform", `translate(0, ${height + 60})`);
 
     const legendScale = d3.scaleLinear()
-      .domain(colorScale.domain())
+      .domain(d3.extent(data, d => d.temp))
       .range([0, legendWidth]);
 
     const legendAxis = d3.axisBottom(legendScale)
@@ -115,3 +116,4 @@ const margin = { top: 60, right: 20, bottom: 100, left: 100 };
     legend.append("g")
       .attr("transform", `translate(0, ${legendHeight})`)
       .call(legendAxis);
+  });
