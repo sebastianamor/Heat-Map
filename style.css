@@ -1,17 +1,30 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
+  background-image: url( "https://img.freepik.com/foto-gratis/sobrecalentamiento-planeta-tierra-campana-calentamiento-global-tecnica-mixta_53876-104835.jpg?semt=ais_country_boost&w=740");
+  background-color: red;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  color: #163D57
+}
+  
+
+
+
+
   
   #title {
     text-align: center;
     font-size: 24px;
     margin-bottom: 10px;
+     background-color: red;
   }
   
   #description {
     text-align: center;
     margin-bottom: 20px;
+     background-color: red;
   }
   
   #tooltip {
@@ -30,6 +43,18 @@ body {
     stroke-width: 1px;
   }
   
-  #legend {
-    margin-top: 20px;
-  }
+  #legend{
+  color: rgb(56, 58, 74);
+  font-size: 18px;
+  text-align: center;
+  min-height: 150px;
+}
+
+
+#title{
+  font-size: 28px;
+  color: #163D57;
+  text-transform: uppercase;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
